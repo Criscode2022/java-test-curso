@@ -13,6 +13,8 @@ import com.curso.library.book.domain.Book;
 import com.curso.library.book.domain.BookRepository;
 import com.curso.library.common.error.DuplicateResourceException;
 import com.curso.library.common.error.ResourceNotFoundException;
+import com.curso.library.genre.domain.Genre;
+import com.curso.library.genre.domain.GenreRepository;
 
 @Service
 @Transactional
@@ -20,15 +22,21 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
 
-    public BookService(BookRepository bookRepository, AuthorRepository authorRepository) {
+    public BookService(
+            BookRepository bookRepository,
+            AuthorRepository authorRepository,
+            GenreRepository genreRepository
+    ) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
+        this.genreRepository = genreRepository;
     }
 
     @Transactional(readOnly = true)
     public List<BookResponse> findAll() {
-        return bookRepository.findAllWithAuthor()
+        return bookRepository.findAllWithRelations()
                 .stream()
                 .map(BookMapper::toResponse)
                 .toList();
@@ -44,13 +52,24 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    public List<BookResponse> findByGenre(Long genreId) {
+        findGenre(genreId);
+        return bookRepository.findByGenreId(genreId)
+                .stream()
+                .map(BookMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public BookResponse findById(Long id) {
         return BookMapper.toResponse(findBook(id));
     }
 
     public BookResponse create(BookRequest request) {
         ensureIsbnIsUnique(request.isbn(), null);
-        Book saved = bookRepository.save(BookMapper.toEntity(request, findAuthor(request.authorId())));
+        Book saved = bookRepository.save(
+                BookMapper.toEntity(request, findAuthor(request.authorId()), findGenre(request.genreId()))
+        );
         return BookMapper.toResponse(saved);
     }
 
@@ -61,9 +80,9 @@ public class BookService {
                 request.title().trim(),
                 request.isbn().trim(),
                 request.publishedYear(),
-                request.genre() == null || request.genre().isBlank() ? null : request.genre().trim(),
                 request.pages(),
-                findAuthor(request.authorId())
+                findAuthor(request.authorId()),
+                findGenre(request.genreId())
         );
         return BookMapper.toResponse(book);
     }
@@ -73,13 +92,18 @@ public class BookService {
     }
 
     private Book findBook(Long id) {
-        return bookRepository.findByIdWithAuthor(id)
+        return bookRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book", id));
     }
 
     private Author findAuthor(Long id) {
         return authorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author", id));
+    }
+
+    private Genre findGenre(Long id) {
+        return genreRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre", id));
     }
 
     private void ensureIsbnIsUnique(String isbn, Long currentId) {

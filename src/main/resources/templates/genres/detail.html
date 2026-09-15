@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{layout :: head(${author.name})}"></head>
+<head th:replace="~{layout :: head(${genre.name})}"></head>
 <body>
     <div th:replace="~{layout :: room}"></div>
     <header th:replace="~{layout :: header}"></header>
@@ -9,19 +9,17 @@
     <main class="wrap">
         <div class="section-row">
             <div>
-                <h1 th:text="${author.name}">Name</h1>
-                <p class="hint" th:text="${author.nationality} ?: 'Nationality unknown'">United States</p>
+                <h1 th:text="${genre.name}">Name</h1>
+                <p class="hint" th:text="${genre.description} ?: 'No description'">Programming</p>
             </div>
             <div class="actions">
-                <a class="btn" th:href="@{/authors/{id}/edit(id=${author.id})}">Edit</a>
+                <a class="btn" th:href="@{/genres/{id}/edit(id=${genre.id})}">Edit</a>
                 <a class="btn btn-ghost" th:href="@{/books/new}">Add book</a>
             </div>
         </div>
 
         <p class="summary">
-            Born <strong th:text="${author.birthYear} ?: '—'">1952</strong>
-            ·
-            <strong th:text="${author.bookCount}">2</strong> books
+            <strong th:text="${genre.bookCount}">2</strong> books in this genre
         </p>
 
         <div class="shelf" th:unless="${books.empty}">
@@ -33,11 +31,11 @@
                     <span class="spine"></span>
                     <span class="band" th:text="${book.genreName}">Software</span>
                     <h3 th:text="${book.title}">Title</h3>
-                    <small th:text="${book.publishedYear}">2008</small>
+                    <p th:text="${book.authorName}">Author</p>
                 </a>
             </div>
         </div>
-        <p class="empty" th:if="${books.empty}">This author has no books yet.</p>
+        <p class="empty" th:if="${books.empty}">This genre has no books yet.</p>
     </main>
 
     <footer th:replace="~{layout :: footer}"></footer>

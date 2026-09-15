@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Genres')}"></head>
+<body>
+    <div th:replace="~{layout :: room}"></div>
+    <header th:replace="~{layout :: header}"></header>
+    <div th:replace="~{layout :: toast}"></div>
+
+    <main class="wrap">
+        <div class="section-row">
+            <h1>Genres</h1>
+            <a class="btn" th:href="@{/genres/new}">Add genre</a>
+        </div>
+
+        <section class="empty" th:if="${genres.empty}">
+            <p>No genres yet. Add one before you can add a book.</p>
+            <a class="btn" th:href="@{/genres/new}">Add genre</a>
+        </section>
+
+        <ul class="author-list" th:unless="${genres.empty}">
+            <li th:each="genre, iter : ${genres}">
+                <a class="author-card" th:href="@{/genres/{id}(id=${genre.id})}">
+                    <span class="mini-spines" th:attr="data-cloth=${iter.index % 6}" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                    </span>
+                    <span>
+                        <strong th:text="${genre.name}">Name</strong>
+                        <em th:text="${genre.description} ?: 'No description'">Programming</em>
+                    </span>
+                    <span class="badge" th:text="|${genre.bookCount} books|">2 books</span>
+                </a>
+                <div class="book-actions">
+                    <a th:href="@{/genres/{id}/edit(id=${genre.id})}">Edit</a>
+                    <form th:action="@{/genres/{id}/delete(id=${genre.id})}" method="post"
+                          data-confirm="Delete this genre? You can only do this if it has no books.">
+                        <button type="submit">Delete</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

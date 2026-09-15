@@ -13,6 +13,8 @@
                 <strong th:text="${bookCount}">0</strong> books
                 ·
                 <strong th:text="${authorCount}">0</strong> authors
+                ·
+                <strong th:text="${genreCount}">0</strong> genres
             </p>
             <div class="actions">
                 <a class="btn" th:href="@{/books}">Browse books</a>
@@ -32,7 +34,7 @@
                        th:href="@{/books/{id}(id=${book.id})}"
                        th:attr="data-cloth=${iter.index % 6}">
                         <span class="spine"></span>
-                        <span class="band" th:text="${book.genre} ?: 'Book'">Software</span>
+                        <span class="band" th:text="${book.genreName}">Software</span>
                         <h3 th:text="${book.title}">Title</h3>
                         <p th:text="${book.authorName}">Author</p>
                     </a>

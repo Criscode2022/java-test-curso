@@ -49,6 +49,13 @@ class BookWebTest {
     }
 
     @Test
+    void genresPageRenders() throws Exception {
+        mockMvc.perform(get("/genres"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Software")));
+    }
+
+    @Test
     void createFormRedisplaysValidationErrors() throws Exception {
         mockMvc.perform(post("/books")
                         .param("title", "")
@@ -66,7 +73,7 @@ class BookWebTest {
                         .param("isbn", "9780201616224")
                         .param("publishedYear", "1999")
                         .param("authorId", "1")
-                        .param("genre", "Software")
+                        .param("genreId", "2")
                         .param("pages", "352"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/books"));

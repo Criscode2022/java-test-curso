@@ -7,7 +7,7 @@
 
     <main class="wrap narrow">
         <h1 th:text="${formTitle}">Add a book</h1>
-        <p class="hint">Pick an author from the list. If they are missing, add the author first.</p>
+        <p class="hint">Pick an author and a genre. Add them first if they are missing.</p>
 
         <form class="form" th:action="@{${formAction}}" th:object="${book}" method="post">
             <label>
@@ -26,6 +26,16 @@
             </label>
             <p class="hint"><a th:href="@{/authors/new}">Add an author</a></p>
 
+            <label>
+                Genre
+                <select th:field="*{genreId}">
+                    <option value="">Choose a genre</option>
+                    <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}">Genre</option>
+                </select>
+                <span class="field-error" th:if="${#fields.hasErrors('genreId')}" th:errors="*{genreId}"></span>
+            </label>
+            <p class="hint"><a th:href="@{/genres/new}">Add a genre</a></p>
+
             <div class="form-grid">
                 <label>
                     ISBN
@@ -36,11 +46,6 @@
                     Year
                     <input type="number" th:field="*{publishedYear}" min="1400" max="2100">
                     <span class="field-error" th:if="${#fields.hasErrors('publishedYear')}" th:errors="*{publishedYear}"></span>
-                </label>
-                <label>
-                    Genre
-                    <input type="text" th:field="*{genre}" maxlength="60" autocomplete="off">
-                    <span class="field-error" th:if="${#fields.hasErrors('genre')}" th:errors="*{genre}"></span>
                 </label>
                 <label>
                     Pages

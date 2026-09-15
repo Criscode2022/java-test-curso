@@ -22,8 +22,8 @@ public record BookRequest(
         @NotNull(message = "authorId is required")
         Long authorId,
 
-        @Size(max = 60, message = "genre must be at most 60 characters")
-        String genre,
+        @NotNull(message = "genreId is required")
+        Long genreId,
 
         @Min(value = 1, message = "pages must be at least 1")
         @Max(value = 20000, message = "pages must be at most 20000")
@@ -31,7 +31,7 @@ public record BookRequest(
 ) {
 
     public static BookRequest empty() {
-        return new BookRequest("", "", null, null, "", null);
+        return new BookRequest("", "", null, null, null, null);
     }
 
     public static BookRequest from(BookResponse book) {
@@ -40,7 +40,7 @@ public record BookRequest(
                 book.isbn(),
                 book.publishedYear(),
                 book.authorId(),
-                book.genre(),
+                book.genreId(),
                 book.pages()
         );
     }

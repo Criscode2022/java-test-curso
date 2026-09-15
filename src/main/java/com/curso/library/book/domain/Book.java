@@ -1,6 +1,7 @@
 package com.curso.library.book.domain;
 
 import com.curso.library.author.domain.Author;
+import com.curso.library.genre.domain.Genre;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,34 +31,35 @@ public class Book {
     @Column(name = "published_year")
     private Integer publishedYear;
 
-    @Column(length = 60)
-    private String genre;
-
     private Integer pages;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false, foreignKey = @ForeignKey(name = "fk_books_author"))
     private Author author;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "genre_id", nullable = false, foreignKey = @ForeignKey(name = "fk_books_genre"))
+    private Genre genre;
+
     protected Book() {
     }
 
-    public Book(String title, String isbn, Integer publishedYear, String genre, Integer pages, Author author) {
+    public Book(String title, String isbn, Integer publishedYear, Integer pages, Author author, Genre genre) {
         this.title = title;
         this.isbn = isbn;
         this.publishedYear = publishedYear;
-        this.genre = genre;
         this.pages = pages;
         this.author = author;
+        this.genre = genre;
     }
 
-    public void update(String title, String isbn, Integer publishedYear, String genre, Integer pages, Author author) {
+    public void update(String title, String isbn, Integer publishedYear, Integer pages, Author author, Genre genre) {
         this.title = title;
         this.isbn = isbn;
         this.publishedYear = publishedYear;
-        this.genre = genre;
         this.pages = pages;
         this.author = author;
+        this.genre = genre;
     }
 
     public Long getId() {
@@ -76,15 +78,15 @@ public class Book {
         return publishedYear;
     }
 
-    public String getGenre() {
-        return genre;
-    }
-
     public Integer getPages() {
         return pages;
     }
 
     public Author getAuthor() {
         return author;
+    }
+
+    public Genre getGenre() {
+        return genre;
     }
 }

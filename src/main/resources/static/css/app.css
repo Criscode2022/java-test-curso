@@ -139,7 +139,7 @@ h1 { font-size: clamp(2rem, 5vw, 3.4rem); }
 
 .filters {
     display: grid;
-    grid-template-columns: 1.4fr 1fr auto;
+    grid-template-columns: 1.2fr 1fr 1fr auto;
     gap: 1rem;
     align-items: end;
     margin-bottom: 1.4rem;

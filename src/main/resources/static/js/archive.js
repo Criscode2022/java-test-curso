@@ -1,6 +1,7 @@
 (() => {
     const search = document.querySelector("[data-filter-input]");
-    const authorSelect = document.querySelector("[data-filter-select]");
+    const authorSelect = document.querySelector("[data-filter-author]");
+    const genreSelect = document.querySelector("[data-filter-genre]");
     const cards = document.querySelectorAll("[data-card-grid] [data-book]");
     const empty = document.querySelector("[data-empty-filter]");
     const resultCount = document.querySelector("[data-result-count]");
@@ -8,6 +9,7 @@
     const matches = (card) => {
         const query = (search?.value || "").trim().toLowerCase();
         const authorFilter = authorSelect?.value || "all";
+        const genreFilter = genreSelect?.value || "all";
         const haystack = [
             card.dataset.title,
             card.dataset.author,
@@ -16,7 +18,8 @@
         ].join(" ").toLowerCase();
         const textOk = query === "" || haystack.includes(query);
         const authorOk = authorFilter === "all" || card.dataset.author === authorFilter;
-        return textOk && authorOk;
+        const genreOk = genreFilter === "all" || card.dataset.genre === genreFilter;
+        return textOk && authorOk && genreOk;
     };
 
     const apply = () => {
@@ -39,6 +42,7 @@
     apply();
     search?.addEventListener("input", apply);
     authorSelect?.addEventListener("change", apply);
+    genreSelect?.addEventListener("change", apply);
 
     document.querySelectorAll("form[data-confirm]").forEach((form) => {
         form.addEventListener("submit", (event) => {

@@ -19,18 +19,27 @@
             </label>
             <label>
                 Author
-                <select data-filter-select>
+                <select data-filter-author>
                     <option value="all">All authors</option>
                     <option th:each="author : ${authors}"
                             th:value="${author.name}"
                             th:text="${author.name}">Author</option>
                 </select>
             </label>
+            <label>
+                Genre
+                <select data-filter-genre>
+                    <option value="all">All genres</option>
+                    <option th:each="genre : ${genres}"
+                            th:value="${genre.name}"
+                            th:text="${genre.name}">Genre</option>
+                </select>
+            </label>
             <p class="result" data-result-count></p>
         </div>
 
         <section class="empty" th:if="${books.empty}">
-            <p>No books yet. Add an author first, then add a book.</p>
+            <p>No books yet. Add an author and a genre first, then add a book.</p>
             <a class="btn" th:href="@{/authors/new}">Add author</a>
         </section>
 
@@ -38,10 +47,10 @@
             <div class="shelf-plank" aria-hidden="true"></div>
             <div class="cover-row" data-card-grid>
                 <article class="book" data-book th:each="book, iter : ${books}"
-                         th:attr="data-title=${book.title}, data-author=${book.authorName}, data-genre=${book.genre}, data-isbn=${book.isbn}, data-cloth=${iter.index % 6}">
+                         th:attr="data-title=${book.title}, data-author=${book.authorName}, data-genre=${book.genreName}, data-isbn=${book.isbn}, data-cloth=${iter.index % 6}">
                     <a class="cover" th:href="@{/books/{id}(id=${book.id})}">
                         <span class="spine"></span>
-                        <span class="band" th:text="${book.genre} ?: 'Book'">Software</span>
+                        <span class="band" th:text="${book.genreName}">Software</span>
                         <h3 th:text="${book.title}">Title</h3>
                         <p th:text="${book.authorName}">Author</p>
                         <small th:text="${book.publishedYear}">2008</small>

@@ -20,6 +20,7 @@
         <nav>
             <a th:href="@{/books}">Books</a>
             <a th:href="@{/authors}">Authors</a>
+            <a th:href="@{/genres}">Genres</a>
             <a class="btn" th:href="@{/books/new}">Add book</a>
         </nav>
     </header>
@@ -27,7 +28,7 @@
     <div class="notice" th:fragment="toast" th:if="${message}" data-toast th:text="${message}">Saved.</div>
 
     <footer class="site-foot" th:fragment="footer">
-        <p>Every book needs an author. API: <a th:href="@{/api/books}">/api/books</a></p>
+        <p>Every book needs an author and a genre. API: <a th:href="@{/api/books}">/api/books</a></p>
         <script th:src="@{/js/archive.js}"></script>
     </footer>
 </body>

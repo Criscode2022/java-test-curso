@@ -15,12 +15,17 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     long countByAuthorId(Long authorId);
 
-    @Query("select b from Book b join fetch b.author order by b.title")
-    List<Book> findAllWithAuthor();
+    long countByGenreId(Long genreId);
 
-    @Query("select b from Book b join fetch b.author where b.id = :id")
-    Optional<Book> findByIdWithAuthor(@Param("id") Long id);
+    @Query("select b from Book b join fetch b.author join fetch b.genre order by b.title")
+    List<Book> findAllWithRelations();
 
-    @Query("select b from Book b join fetch b.author where b.author.id = :authorId order by b.title")
+    @Query("select b from Book b join fetch b.author join fetch b.genre where b.id = :id")
+    Optional<Book> findByIdWithRelations(@Param("id") Long id);
+
+    @Query("select b from Book b join fetch b.author join fetch b.genre where b.author.id = :authorId order by b.title")
     List<Book> findByAuthorId(@Param("authorId") Long authorId);
+
+    @Query("select b from Book b join fetch b.author join fetch b.genre where b.genre.id = :genreId order by b.title")
+    List<Book> findByGenreId(@Param("genreId") Long genreId);
 }

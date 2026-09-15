@@ -24,6 +24,8 @@ import com.curso.library.book.domain.Book;
 import com.curso.library.book.domain.BookRepository;
 import com.curso.library.common.error.DuplicateResourceException;
 import com.curso.library.common.error.ResourceNotFoundException;
+import com.curso.library.genre.domain.Genre;
+import com.curso.library.genre.domain.GenreRepository;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceTest {
@@ -34,20 +36,26 @@ class BookServiceTest {
     @Mock
     private AuthorRepository authorRepository;
 
+    @Mock
+    private GenreRepository genreRepository;
+
     private BookService bookService;
     private Author author;
+    private Genre genre;
 
     @BeforeEach
     void setUp() {
-        bookService = new BookService(bookRepository, authorRepository);
+        bookService = new BookService(bookRepository, authorRepository, genreRepository);
         author = new Author("Robert C. Martin", "United States", 1952);
+        genre = new Genre("Software", "Programming and craft.");
     }
 
     @Test
     void createSavesBookWhenIsbnIsFree() {
-        BookRequest request = new BookRequest("Clean Code", "9780132350884", 2008, 1L, "Software", 464);
+        BookRequest request = new BookRequest("Clean Code", "9780132350884", 2008, 1L, 2L, 464);
         when(bookRepository.existsByIsbn(request.isbn())).thenReturn(false);
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(genreRepository.findById(2L)).thenReturn(Optional.of(genre));
         when(bookRepository.save(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         BookResponse response = bookService.create(request);
@@ -56,12 +64,13 @@ class BookServiceTest {
         verify(bookRepository).save(captor.capture());
         assertThat(captor.getValue().getTitle()).isEqualTo("Clean Code");
         assertThat(captor.getValue().getAuthor().getName()).isEqualTo("Robert C. Martin");
+        assertThat(captor.getValue().getGenre().getName()).isEqualTo("Software");
         assertThat(response.title()).isEqualTo("Clean Code");
     }
 
     @Test
     void createRejectsDuplicateIsbn() {
-        BookRequest request = new BookRequest("Clean Code", "9780132350884", 2008, 1L, "Software", 464);
+        BookRequest request = new BookRequest("Clean Code", "9780132350884", 2008, 1L, 2L, 464);
         when(bookRepository.existsByIsbn(request.isbn())).thenReturn(true);
 
         assertThatThrownBy(() -> bookService.create(request))
@@ -72,7 +81,7 @@ class BookServiceTest {
 
     @Test
     void findByIdThrowsWhenMissing() {
-        when(bookRepository.findByIdWithAuthor(99L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdWithRelations(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookService.findById(99L))
                 .isInstanceOf(ResourceNotFoundException.class)

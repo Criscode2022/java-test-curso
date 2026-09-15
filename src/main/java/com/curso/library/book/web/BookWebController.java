@@ -15,6 +15,7 @@ import com.curso.library.book.api.dto.BookRequest;
 import com.curso.library.book.application.BookService;
 import com.curso.library.common.error.DuplicateResourceException;
 import com.curso.library.common.error.ResourceNotFoundException;
+import com.curso.library.genre.application.GenreService;
 
 import jakarta.validation.Valid;
 
@@ -24,16 +25,19 @@ public class BookWebController {
 
     private final BookService bookService;
     private final AuthorService authorService;
+    private final GenreService genreService;
 
-    public BookWebController(BookService bookService, AuthorService authorService) {
+    public BookWebController(BookService bookService, AuthorService authorService, GenreService genreService) {
         this.bookService = bookService;
         this.authorService = authorService;
+        this.genreService = genreService;
     }
 
     @GetMapping
     public String list(Model model) {
         model.addAttribute("books", bookService.findAll());
         model.addAttribute("authors", authorService.findAll());
+        model.addAttribute("genres", genreService.findAll());
         return "books/list";
     }
 
@@ -42,7 +46,7 @@ public class BookWebController {
         model.addAttribute("book", BookRequest.empty());
         model.addAttribute("formTitle", "Add a book");
         model.addAttribute("formAction", "/books");
-        model.addAttribute("authors", authorService.findAll());
+        addLookups(model);
         return "books/form";
     }
 
@@ -63,7 +67,7 @@ public class BookWebController {
             bindingResult.rejectValue("isbn", "duplicate", exception.getMessage());
             return showForm(model, "Add a book", "/books");
         } catch (ResourceNotFoundException exception) {
-            bindingResult.rejectValue("authorId", "missing", exception.getMessage());
+            rejectMissingRelation(bindingResult, exception);
             return showForm(model, "Add a book", "/books");
         }
 
@@ -82,7 +86,7 @@ public class BookWebController {
         model.addAttribute("book", BookRequest.from(bookService.findById(id)));
         model.addAttribute("formTitle", "Edit book");
         model.addAttribute("formAction", "/books/" + id);
-        model.addAttribute("authors", authorService.findAll());
+        addLookups(model);
         return "books/form";
     }
 
@@ -104,7 +108,7 @@ public class BookWebController {
             bindingResult.rejectValue("isbn", "duplicate", exception.getMessage());
             return showForm(model, "Edit book", "/books/" + id);
         } catch (ResourceNotFoundException exception) {
-            bindingResult.rejectValue("authorId", "missing", exception.getMessage());
+            rejectMissingRelation(bindingResult, exception);
             return showForm(model, "Edit book", "/books/" + id);
         }
 
@@ -122,7 +126,17 @@ public class BookWebController {
     private String showForm(Model model, String title, String action) {
         model.addAttribute("formTitle", title);
         model.addAttribute("formAction", action);
-        model.addAttribute("authors", authorService.findAll());
+        addLookups(model);
         return "books/form";
+    }
+
+    private void addLookups(Model model) {
+        model.addAttribute("authors", authorService.findAll());
+        model.addAttribute("genres", genreService.findAll());
+    }
+
+    private static void rejectMissingRelation(BindingResult bindingResult, ResourceNotFoundException exception) {
+        String field = exception.getMessage().startsWith("Genre") ? "genreId" : "authorId";
+        bindingResult.rejectValue(field, "missing", exception.getMessage());
     }
 }

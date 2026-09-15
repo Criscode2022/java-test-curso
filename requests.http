@@ -3,11 +3,26 @@
 ### List authors
 GET {{baseUrl}}/api/authors
 
+### List genres
+GET {{baseUrl}}/api/genres
+
 ### List books
 GET {{baseUrl}}/api/books
 
 ### Books by author
 GET {{baseUrl}}/api/books?authorId=1
+
+### Books by genre
+GET {{baseUrl}}/api/books?genreId=2
+
+### Create a genre
+POST {{baseUrl}}/api/genres
+Content-Type: application/json
+
+{
+  "name": "Testing",
+  "description": "How we know the code works."
+}
 
 ### Create an author
 POST {{baseUrl}}/api/authors
@@ -19,7 +34,7 @@ Content-Type: application/json
   "birthYear": 1964
 }
 
-### Create a book bound to an author
+### Create a book bound to an author and a genre
 POST {{baseUrl}}/api/books
 Content-Type: application/json
 
@@ -28,9 +43,12 @@ Content-Type: application/json
   "isbn": "9780201616224",
   "publishedYear": 1999,
   "authorId": 1,
-  "genre": "Software",
+  "genreId": 2,
   "pages": 352
 }
 
 ### Delete author (409 if they still have books)
 DELETE {{baseUrl}}/api/authors/1
+
+### Delete genre (409 if it still has books)
+DELETE {{baseUrl}}/api/genres/2

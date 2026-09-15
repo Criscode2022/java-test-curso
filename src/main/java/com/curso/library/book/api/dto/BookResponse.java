@@ -5,9 +5,10 @@ public record BookResponse(
         String title,
         String isbn,
         Integer publishedYear,
-        String genre,
         Integer pages,
         Long authorId,
-        String authorName
+        String authorName,
+        Long genreId,
+        String genreName
 ) {
 }

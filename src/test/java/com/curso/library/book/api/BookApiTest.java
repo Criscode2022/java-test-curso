@@ -37,13 +37,17 @@ class BookApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(4)));
 
+        mockMvc.perform(get("/api/genres"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
+
         String body = """
                 {
                   "title": "The Pragmatic Programmer",
                   "isbn": "9780201616224",
                   "publishedYear": 1999,
                   "authorId": 1,
-                  "genre": "Software",
+                  "genreId": 2,
                   "pages": 352
                 }
                 """;
@@ -69,7 +73,7 @@ class BookApiTest {
                   "isbn": "9780201616224",
                   "publishedYear": 1999,
                   "authorId": 1,
-                  "genre": "Software",
+                  "genreId": 2,
                   "pages": 352
                 }
                 """;
@@ -78,7 +82,7 @@ class BookApiTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updated))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.genre").value("Software"));
+                .andExpect(jsonPath("$.genreName").value("Software"));
 
         mockMvc.perform(delete(location))
                 .andExpect(status().isNoContent());
@@ -103,12 +107,19 @@ class BookApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.title").exists())
                 .andExpect(jsonPath("$.fieldErrors.isbn").exists())
-                .andExpect(jsonPath("$.fieldErrors.authorId").exists());
+                .andExpect(jsonPath("$.fieldErrors.authorId").exists())
+                .andExpect(jsonPath("$.fieldErrors.genreId").exists());
     }
 
     @Test
     void cannotDeleteAuthorWithBooks() throws Exception {
         mockMvc.perform(delete("/api/authors/1"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void cannotDeleteGenreWithBooks() throws Exception {
+        mockMvc.perform(delete("/api/genres/2"))
                 .andExpect(status().isConflict());
     }
 }
