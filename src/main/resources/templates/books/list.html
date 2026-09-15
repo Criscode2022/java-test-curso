@@ -2,49 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{layout :: head('Books')}"></head>
 <body>
+    <div th:replace="~{layout :: room}"></div>
     <header th:replace="~{layout :: header}"></header>
+    <div th:replace="~{layout :: toast}"></div>
 
-    <main class="page">
-        <p class="kicker">Catalog</p>
-        <div class="page-heading">
-            <h1>Shelved titles</h1>
-            <a class="button" th:href="@{/books/new}">Add book</a>
+    <main class="wrap">
+        <div class="section-row">
+            <h1>Books</h1>
+            <a class="btn" th:href="@{/books/new}">Add book</a>
         </div>
 
-        <p class="flash" th:if="${message}" th:text="${message}">Saved.</p>
+        <div class="filters" th:unless="${books.empty}">
+            <label>
+                Search
+                <input type="search" data-filter-input placeholder="Title, author, ISBN…">
+            </label>
+            <label>
+                Author
+                <select data-filter-select>
+                    <option value="all">All authors</option>
+                    <option th:each="author : ${authors}"
+                            th:value="${author.name}"
+                            th:text="${author.name}">Author</option>
+                </select>
+            </label>
+            <p class="result" data-result-count></p>
+        </div>
 
-        <section class="empty-state" th:if="${books.empty}">
-            <p>No books yet. Add the first title to the catalog.</p>
-            <a class="button" th:href="@{/books/new}">Add book</a>
+        <section class="empty" th:if="${books.empty}">
+            <p>No books yet. Add an author first, then add a book.</p>
+            <a class="btn" th:href="@{/authors/new}">Add author</a>
         </section>
 
-        <table class="catalog" th:unless="${books.empty}">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>ISBN</th>
-                    <th>Year</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="book : ${books}">
-                    <td>
-                        <a class="title-link" th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">Title</a>
-                    </td>
-                    <td th:text="${book.author}">Author</td>
-                    <td><code th:text="${book.isbn}">isbn</code></td>
-                    <td th:text="${book.publishedYear}">2000</td>
-                    <td class="actions">
+        <div class="shelf" th:unless="${books.empty}">
+            <div class="shelf-plank" aria-hidden="true"></div>
+            <div class="cover-row" data-card-grid>
+                <article class="book" data-book th:each="book, iter : ${books}"
+                         th:attr="data-title=${book.title}, data-author=${book.authorName}, data-genre=${book.genre}, data-isbn=${book.isbn}, data-cloth=${iter.index % 6}">
+                    <a class="cover" th:href="@{/books/{id}(id=${book.id})}">
+                        <span class="spine"></span>
+                        <span class="band" th:text="${book.genre} ?: 'Book'">Software</span>
+                        <h3 th:text="${book.title}">Title</h3>
+                        <p th:text="${book.authorName}">Author</p>
+                        <small th:text="${book.publishedYear}">2008</small>
+                    </a>
+                    <div class="book-actions">
                         <a th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
-                        <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post">
-                            <button type="submit" class="link-button">Delete</button>
+                        <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post" data-confirm="Delete this book?">
+                            <button type="submit">Delete</button>
                         </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <p class="empty" data-empty-filter hidden>No books match that search.</p>
     </main>
 
     <footer th:replace="~{layout :: footer}"></footer>

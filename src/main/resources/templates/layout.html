@@ -3,29 +3,32 @@
 <head th:fragment="head (pageTitle)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${pageTitle} + ' · Library'">Library</title>
+    <title th:text="${pageTitle} + ' · Stacks'">Stacks</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fraunces:500,600,700|Lexend:400,500,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
-    <header class="site-header" th:fragment="header">
-        <a class="brand" th:href="@{/books}">
-            <span class="brand-mark">LC</span>
-            <span>
-                <strong>Library Catalog</strong>
-                <small>Student Thymeleaf template</small>
-            </span>
+    <div class="room" th:fragment="room" aria-hidden="true"></div>
+
+    <header class="topbar" th:fragment="header">
+        <a class="logo" th:href="@{/}">
+            <span class="logo-books" aria-hidden="true"></span>
+            Stacks
         </a>
         <nav>
             <a th:href="@{/books}">Books</a>
-            <a class="button button-small" th:href="@{/books/new}">Add book</a>
+            <a th:href="@{/authors}">Authors</a>
+            <a class="btn" th:href="@{/books/new}">Add book</a>
         </nav>
     </header>
 
-    <footer class="site-footer" th:fragment="footer">
-        <p>JSON API stays at <code>/api/books</code>. These pages are rendered by Thymeleaf.</p>
+    <div class="notice" th:fragment="toast" th:if="${message}" data-toast th:text="${message}">Saved.</div>
+
+    <footer class="site-foot" th:fragment="footer">
+        <p>Every book needs an author. API: <a th:href="@{/api/books}">/api/books</a></p>
+        <script th:src="@{/js/archive.js}"></script>
     </footer>
 </body>
 </html>

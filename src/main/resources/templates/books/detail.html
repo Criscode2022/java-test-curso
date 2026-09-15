@@ -2,33 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{layout :: head(${book.title})}"></head>
 <body>
+    <div th:replace="~{layout :: room}"></div>
     <header th:replace="~{layout :: header}"></header>
+    <div th:replace="~{layout :: toast}"></div>
 
-    <main class="page page-narrow">
-        <p class="kicker">Record</p>
-        <p class="flash" th:if="${message}" th:text="${message}">Saved.</p>
-
-        <article class="card">
-            <h1 th:text="${book.title}">Title</h1>
-            <p class="byline" th:text="${book.author}">Author</p>
-
-            <dl class="meta">
-                <div>
-                    <dt>ISBN</dt>
-                    <dd><code th:text="${book.isbn}">isbn</code></dd>
+    <main class="wrap narrow">
+        <article class="open-book">
+            <div class="cover tall" th:attr="data-cloth=${book.id % 6}">
+                <span class="spine"></span>
+                <span class="band" th:text="${book.genre} ?: 'Book'">Software</span>
+                <h2 th:text="${book.title}">Title</h2>
+                <p th:text="${book.authorName}">Author</p>
+            </div>
+            <div class="open-copy">
+                <h1 th:text="${book.title}">Title</h1>
+                <p class="byline">
+                    by <a th:href="@{/authors/{id}(id=${book.authorId})}" th:text="${book.authorName}">Author</a>
+                </p>
+                <dl class="meta">
+                    <div>
+                        <dt>ISBN</dt>
+                        <dd th:text="${book.isbn}">isbn</dd>
+                    </div>
+                    <div>
+                        <dt>Year</dt>
+                        <dd th:text="${book.publishedYear} ?: '—'">2008</dd>
+                    </div>
+                    <div>
+                        <dt>Pages</dt>
+                        <dd th:text="${book.pages} ?: '—'">464</dd>
+                    </div>
+                </dl>
+                <div class="actions">
+                    <a class="btn" th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
+                    <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post" data-confirm="Delete this book?">
+                        <button type="submit" class="btn btn-ghost">Delete</button>
+                    </form>
+                    <a class="text-btn" th:href="@{/books}">Back to books</a>
                 </div>
-                <div>
-                    <dt>Published</dt>
-                    <dd th:text="${book.publishedYear}">2000</dd>
-                </div>
-            </dl>
-
-            <div class="form-actions">
-                <a class="button" th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
-                <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post">
-                    <button type="submit" class="link-button">Delete</button>
-                </form>
-                <a class="text-link" th:href="@{/books}">Back to catalog</a>
             </div>
         </article>
     </main>

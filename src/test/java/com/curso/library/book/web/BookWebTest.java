@@ -35,17 +35,23 @@ class BookWebTest {
     }
 
     @Test
-    void homeRedirectsToCatalog() throws Exception {
+    void homeShowsLobby() throws Exception {
         mockMvc.perform(get("/"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/books"));
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Your library")));
+    }
+
+    @Test
+    void authorsPageRenders() throws Exception {
+        mockMvc.perform(get("/authors"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Robert C. Martin")));
     }
 
     @Test
     void createFormRedisplaysValidationErrors() throws Exception {
         mockMvc.perform(post("/books")
                         .param("title", "")
-                        .param("author", "Unknown")
                         .param("isbn", "123")
                         .param("publishedYear", "1200"))
                 .andExpect(status().isOk())
@@ -57,9 +63,11 @@ class BookWebTest {
     void createBookRedirectsToCatalog() throws Exception {
         mockMvc.perform(post("/books")
                         .param("title", "The Pragmatic Programmer")
-                        .param("author", "Andrew Hunt")
                         .param("isbn", "9780201616224")
-                        .param("publishedYear", "1999"))
+                        .param("publishedYear", "1999")
+                        .param("authorId", "1")
+                        .param("genre", "Software")
+                        .param("pages", "352"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/books"));
     }
@@ -68,6 +76,6 @@ class BookWebTest {
     void missingBookRendersNotFoundPage() throws Exception {
         mockMvc.perform(get("/books/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("This book is not on the shelf")));
+                .andExpect(content().string(containsString("Not on these shelves")));
     }
 }

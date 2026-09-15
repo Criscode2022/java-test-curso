@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.curso.library.author.web.AuthorWebController;
 import com.curso.library.book.web.BookWebController;
 
-@ControllerAdvice(assignableTypes = BookWebController.class)
+@ControllerAdvice(assignableTypes = {BookWebController.class, AuthorWebController.class})
 public class WebExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)

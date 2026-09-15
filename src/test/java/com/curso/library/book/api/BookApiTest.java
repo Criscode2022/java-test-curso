@@ -31,14 +31,20 @@ class BookApiTest {
     void crudFlowWorks() throws Exception {
         mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+                .andExpect(jsonPath("$", hasSize(5)));
+
+        mockMvc.perform(get("/api/authors"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)));
 
         String body = """
                 {
                   "title": "The Pragmatic Programmer",
-                  "author": "Andrew Hunt",
                   "isbn": "9780201616224",
-                  "publishedYear": 1999
+                  "publishedYear": 1999,
+                  "authorId": 1,
+                  "genre": "Software",
+                  "pages": 352
                 }
                 """;
 
@@ -48,6 +54,7 @@ class BookApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.title").value("The Pragmatic Programmer"))
+                .andExpect(jsonPath("$.authorName").exists())
                 .andReturn()
                 .getResponse()
                 .getHeader("Location");
@@ -59,9 +66,11 @@ class BookApiTest {
         String updated = """
                 {
                   "title": "The Pragmatic Programmer",
-                  "author": "Andrew Hunt and David Thomas",
                   "isbn": "9780201616224",
-                  "publishedYear": 1999
+                  "publishedYear": 1999,
+                  "authorId": 1,
+                  "genre": "Software",
+                  "pages": 352
                 }
                 """;
 
@@ -69,7 +78,7 @@ class BookApiTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updated))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.author").value("Andrew Hunt and David Thomas"));
+                .andExpect(jsonPath("$.genre").value("Software"));
 
         mockMvc.perform(delete(location))
                 .andExpect(status().isNoContent());
@@ -83,7 +92,6 @@ class BookApiTest {
         String invalid = """
                 {
                   "title": "",
-                  "author": "Unknown",
                   "isbn": "123",
                   "publishedYear": 1200
                 }
@@ -95,6 +103,12 @@ class BookApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.title").exists())
                 .andExpect(jsonPath("$.fieldErrors.isbn").exists())
-                .andExpect(jsonPath("$.fieldErrors.publishedYear").exists());
+                .andExpect(jsonPath("$.fieldErrors.authorId").exists());
+    }
+
+    @Test
+    void cannotDeleteAuthorWithBooks() throws Exception {
+        mockMvc.perform(delete("/api/authors/1"))
+                .andExpect(status().isConflict());
     }
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head(${author.name})}"></head>
+<body>
+    <div th:replace="~{layout :: room}"></div>
+    <header th:replace="~{layout :: header}"></header>
+    <div th:replace="~{layout :: toast}"></div>
+
+    <main class="wrap">
+        <div class="section-row">
+            <div>
+                <h1 th:text="${author.name}">Name</h1>
+                <p class="hint" th:text="${author.nationality} ?: 'Nationality unknown'">United States</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/authors/{id}/edit(id=${author.id})}">Edit</a>
+                <a class="btn btn-ghost" th:href="@{/books/new}">Add book</a>
+            </div>
+        </div>
+
+        <p class="summary">
+            Born <strong th:text="${author.birthYear} ?: '—'">1952</strong>
+            ·
+            <strong th:text="${author.bookCount}">2</strong> books
+        </p>
+
+        <div class="shelf" th:unless="${books.empty}">
+            <div class="shelf-plank" aria-hidden="true"></div>
+            <div class="cover-row">
+                <a class="cover" th:each="book, iter : ${books}"
+                   th:href="@{/books/{id}(id=${book.id})}"
+                   th:attr="data-cloth=${iter.index % 6}">
+                    <span class="spine"></span>
+                    <span class="band" th:text="${book.genre} ?: 'Book'">Software</span>
+                    <h3 th:text="${book.title}">Title</h3>
+                    <small th:text="${book.publishedYear}">2008</small>
+                </a>
+            </div>
+        </div>
+        <p class="empty" th:if="${books.empty}">This author has no books yet.</p>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

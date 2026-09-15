@@ -2,13 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{layout :: head(${formTitle})}"></head>
 <body>
+    <div th:replace="~{layout :: room}"></div>
     <header th:replace="~{layout :: header}"></header>
 
-    <main class="page page-narrow">
-        <p class="kicker">Card</p>
+    <main class="wrap narrow">
         <h1 th:text="${formTitle}">Add a book</h1>
+        <p class="hint">Pick an author from the list. If they are missing, add the author first.</p>
 
-        <form class="catalog-form" th:action="@{${formAction}}" th:object="${book}" method="post">
+        <form class="form" th:action="@{${formAction}}" th:object="${book}" method="post">
             <label>
                 Title
                 <input type="text" th:field="*{title}" maxlength="200" autocomplete="off">
@@ -17,25 +18,40 @@
 
             <label>
                 Author
-                <input type="text" th:field="*{author}" maxlength="150" autocomplete="off">
-                <span class="field-error" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></span>
+                <select th:field="*{authorId}">
+                    <option value="">Choose an author</option>
+                    <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.name}">Author</option>
+                </select>
+                <span class="field-error" th:if="${#fields.hasErrors('authorId')}" th:errors="*{authorId}"></span>
             </label>
+            <p class="hint"><a th:href="@{/authors/new}">Add an author</a></p>
 
-            <label>
-                ISBN
-                <input type="text" th:field="*{isbn}" maxlength="17" autocomplete="off">
-                <span class="field-error" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
-            </label>
+            <div class="form-grid">
+                <label>
+                    ISBN
+                    <input type="text" th:field="*{isbn}" maxlength="17" autocomplete="off">
+                    <span class="field-error" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
+                </label>
+                <label>
+                    Year
+                    <input type="number" th:field="*{publishedYear}" min="1400" max="2100">
+                    <span class="field-error" th:if="${#fields.hasErrors('publishedYear')}" th:errors="*{publishedYear}"></span>
+                </label>
+                <label>
+                    Genre
+                    <input type="text" th:field="*{genre}" maxlength="60" autocomplete="off">
+                    <span class="field-error" th:if="${#fields.hasErrors('genre')}" th:errors="*{genre}"></span>
+                </label>
+                <label>
+                    Pages
+                    <input type="number" th:field="*{pages}" min="1" max="20000">
+                    <span class="field-error" th:if="${#fields.hasErrors('pages')}" th:errors="*{pages}"></span>
+                </label>
+            </div>
 
-            <label>
-                Published year
-                <input type="number" th:field="*{publishedYear}" min="1400" max="2100">
-                <span class="field-error" th:if="${#fields.hasErrors('publishedYear')}" th:errors="*{publishedYear}"></span>
-            </label>
-
-            <div class="form-actions">
-                <button type="submit" class="button">Save book</button>
-                <a class="text-link" th:href="@{/books}">Cancel</a>
+            <div class="actions">
+                <button type="submit" class="btn">Save book</button>
+                <a class="text-btn" th:href="@{/books}">Cancel</a>
             </div>
         </form>
     </main>

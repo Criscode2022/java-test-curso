@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.curso.library.author.application.AuthorService;
 import com.curso.library.book.api.dto.BookRequest;
 import com.curso.library.book.application.BookService;
 import com.curso.library.common.error.DuplicateResourceException;
+import com.curso.library.common.error.ResourceNotFoundException;
 
 import jakarta.validation.Valid;
 
@@ -21,14 +23,17 @@ import jakarta.validation.Valid;
 public class BookWebController {
 
     private final BookService bookService;
+    private final AuthorService authorService;
 
-    public BookWebController(BookService bookService) {
+    public BookWebController(BookService bookService, AuthorService authorService) {
         this.bookService = bookService;
+        this.authorService = authorService;
     }
 
     @GetMapping
     public String list(Model model) {
         model.addAttribute("books", bookService.findAll());
+        model.addAttribute("authors", authorService.findAll());
         return "books/list";
     }
 
@@ -37,6 +42,7 @@ public class BookWebController {
         model.addAttribute("book", BookRequest.empty());
         model.addAttribute("formTitle", "Add a book");
         model.addAttribute("formAction", "/books");
+        model.addAttribute("authors", authorService.findAll());
         return "books/form";
     }
 
@@ -56,9 +62,12 @@ public class BookWebController {
         } catch (DuplicateResourceException exception) {
             bindingResult.rejectValue("isbn", "duplicate", exception.getMessage());
             return showForm(model, "Add a book", "/books");
+        } catch (ResourceNotFoundException exception) {
+            bindingResult.rejectValue("authorId", "missing", exception.getMessage());
+            return showForm(model, "Add a book", "/books");
         }
 
-        redirectAttributes.addFlashAttribute("message", "Book added to the catalog.");
+        redirectAttributes.addFlashAttribute("message", "Book saved.");
         return "redirect:/books";
     }
 
@@ -73,6 +82,7 @@ public class BookWebController {
         model.addAttribute("book", BookRequest.from(bookService.findById(id)));
         model.addAttribute("formTitle", "Edit book");
         model.addAttribute("formAction", "/books/" + id);
+        model.addAttribute("authors", authorService.findAll());
         return "books/form";
     }
 
@@ -93,6 +103,9 @@ public class BookWebController {
         } catch (DuplicateResourceException exception) {
             bindingResult.rejectValue("isbn", "duplicate", exception.getMessage());
             return showForm(model, "Edit book", "/books/" + id);
+        } catch (ResourceNotFoundException exception) {
+            bindingResult.rejectValue("authorId", "missing", exception.getMessage());
+            return showForm(model, "Edit book", "/books/" + id);
         }
 
         redirectAttributes.addFlashAttribute("message", "Book updated.");
@@ -102,13 +115,14 @@ public class BookWebController {
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         bookService.delete(id);
-        redirectAttributes.addFlashAttribute("message", "Book removed from the catalog.");
+        redirectAttributes.addFlashAttribute("message", "Book deleted.");
         return "redirect:/books";
     }
 
-    private static String showForm(Model model, String title, String action) {
+    private String showForm(Model model, String title, String action) {
         model.addAttribute("formTitle", title);
         model.addAttribute("formAction", action);
+        model.addAttribute("authors", authorService.findAll());
         return "books/form";
     }
 }

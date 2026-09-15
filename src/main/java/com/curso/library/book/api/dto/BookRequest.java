@@ -3,6 +3,7 @@ package com.curso.library.book.api.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record BookRequest(
@@ -10,24 +11,37 @@ public record BookRequest(
         @Size(max = 200, message = "title must be at most 200 characters")
         String title,
 
-        @NotBlank(message = "author is required")
-        @Size(max = 150, message = "author must be at most 150 characters")
-        String author,
-
         @NotBlank(message = "isbn is required")
         @Size(min = 10, max = 17, message = "isbn must be between 10 and 17 characters")
         String isbn,
 
         @Min(value = 1400, message = "publishedYear must be 1400 or later")
         @Max(value = 2100, message = "publishedYear must be 2100 or earlier")
-        Integer publishedYear
+        Integer publishedYear,
+
+        @NotNull(message = "authorId is required")
+        Long authorId,
+
+        @Size(max = 60, message = "genre must be at most 60 characters")
+        String genre,
+
+        @Min(value = 1, message = "pages must be at least 1")
+        @Max(value = 20000, message = "pages must be at most 20000")
+        Integer pages
 ) {
 
     public static BookRequest empty() {
-        return new BookRequest("", "", "", null);
+        return new BookRequest("", "", null, null, "", null);
     }
 
     public static BookRequest from(BookResponse book) {
-        return new BookRequest(book.title(), book.author(), book.isbn(), book.publishedYear());
+        return new BookRequest(
+                book.title(),
+                book.isbn(),
+                book.publishedYear(),
+                book.authorId(),
+                book.genre(),
+                book.pages()
+        );
     }
 }

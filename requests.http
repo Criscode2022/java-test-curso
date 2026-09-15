@@ -1,43 +1,36 @@
 @baseUrl = http://localhost:8080
 
+### List authors
+GET {{baseUrl}}/api/authors
+
 ### List books
 GET {{baseUrl}}/api/books
 
-### Get one book
-GET {{baseUrl}}/api/books/1
+### Books by author
+GET {{baseUrl}}/api/books?authorId=1
 
-### Create a book
+### Create an author
+POST {{baseUrl}}/api/authors
+Content-Type: application/json
+
+{
+  "name": "Andrew Hunt",
+  "nationality": "United States",
+  "birthYear": 1964
+}
+
+### Create a book bound to an author
 POST {{baseUrl}}/api/books
 Content-Type: application/json
 
 {
   "title": "The Pragmatic Programmer",
-  "author": "Andrew Hunt",
   "isbn": "9780201616224",
-  "publishedYear": 1999
+  "publishedYear": 1999,
+  "authorId": 1,
+  "genre": "Software",
+  "pages": 352
 }
 
-### Update a book
-PUT {{baseUrl}}/api/books/3
-Content-Type: application/json
-
-{
-  "title": "The Pragmatic Programmer",
-  "author": "Andrew Hunt and David Thomas",
-  "isbn": "9780201616224",
-  "publishedYear": 1999
-}
-
-### Delete a book
-DELETE {{baseUrl}}/api/books/3
-
-### Validation error (400)
-POST {{baseUrl}}/api/books
-Content-Type: application/json
-
-{
-  "title": "",
-  "author": "Unknown",
-  "isbn": "123",
-  "publishedYear": 1200
-}
+### Delete author (409 if they still have books)
+DELETE {{baseUrl}}/api/authors/1

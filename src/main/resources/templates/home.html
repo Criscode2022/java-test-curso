@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Home')}"></head>
+<body>
+    <div th:replace="~{layout :: room}"></div>
+    <header th:replace="~{layout :: header}"></header>
+    <div th:replace="~{layout :: toast}"></div>
+
+    <main class="wrap">
+        <section class="welcome">
+            <h1>Your library</h1>
+            <p class="summary">
+                <strong th:text="${bookCount}">0</strong> books
+                ·
+                <strong th:text="${authorCount}">0</strong> authors
+            </p>
+            <div class="actions">
+                <a class="btn" th:href="@{/books}">Browse books</a>
+                <a class="btn btn-ghost" th:href="@{/books/new}">Add book</a>
+            </div>
+        </section>
+
+        <section class="shelf-block" th:unless="${books.empty}">
+            <div class="section-row">
+                <h2>On the shelf</h2>
+                <a class="text-btn" th:href="@{/books}">See all books</a>
+            </div>
+            <div class="shelf">
+                <div class="shelf-plank" aria-hidden="true"></div>
+                <div class="cover-row">
+                    <a class="cover" th:each="book, iter : ${books}" th:if="${iter.index < 5}"
+                       th:href="@{/books/{id}(id=${book.id})}"
+                       th:attr="data-cloth=${iter.index % 6}">
+                        <span class="spine"></span>
+                        <span class="band" th:text="${book.genre} ?: 'Book'">Software</span>
+                        <h3 th:text="${book.title}">Title</h3>
+                        <p th:text="${book.authorName}">Author</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

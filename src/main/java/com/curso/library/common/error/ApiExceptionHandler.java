@@ -24,9 +24,9 @@ public class ApiExceptionHandler {
         return build(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
     }
 
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicate(
-            DuplicateResourceException exception,
+    @ExceptionHandler({DuplicateResourceException.class, ResourceInUseException.class})
+    public ResponseEntity<ErrorResponse> handleConflict(
+            RuntimeException exception,
             HttpServletRequest request
     ) {
         return build(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI());

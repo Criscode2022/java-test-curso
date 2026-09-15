@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head(${formTitle})}"></head>
+<body>
+    <div th:replace="~{layout :: room}"></div>
+    <header th:replace="~{layout :: header}"></header>
+
+    <main class="wrap narrow">
+        <h1 th:text="${formTitle}">Add an author</h1>
+        <p class="hint">You need an author before you can add their books.</p>
+
+        <form class="form" th:action="@{${formAction}}" th:object="${author}" method="post">
+            <label>
+                Name
+                <input type="text" th:field="*{name}" maxlength="150" autocomplete="off">
+                <span class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+            </label>
+            <label>
+                Nationality
+                <input type="text" th:field="*{nationality}" maxlength="80" autocomplete="off">
+                <span class="field-error" th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}"></span>
+            </label>
+            <label>
+                Birth year
+                <input type="number" th:field="*{birthYear}" min="1400" max="2100">
+                <span class="field-error" th:if="${#fields.hasErrors('birthYear')}" th:errors="*{birthYear}"></span>
+            </label>
+            <div class="actions">
+                <button type="submit" class="btn">Save author</button>
+                <a class="text-btn" th:href="@{/authors}">Cancel</a>
+            </div>
+        </form>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

@@ -1,73 +1,43 @@
-# Library
+# Stacks
 
-A Spring Boot Book CRUD for students: JSON API, Thymeleaf pages, and Neon Postgres.
+A Spring Boot library with a real **Author → Book** foreign key, JSON APIs, and a Thymeleaf UI that looks like books on a shelf.
 
 ```
-Browser  -> book.web.BookWebController  -> templates/
-JSON     -> book.api.BookApiController  -> BookRequest / BookResponse
-                         \              /
-                    book.application.BookService
-                               |
-                       book.domain.BookRepository
-                               |
-                         Neon (Flyway schema)
+authors 1 ──< books
 ```
 
-## Requirements
-
-- Java 21
-- A `.env` file (copy `.env.example`)
-
-## Database
-
-The app uses a Neon project named **java-test-curso** (database `library`).
-
-1. Copy `.env.example` to `.env`
-2. Paste the pooled URL as `DATABASE_URL`
-3. Paste the direct URL as `DATABASE_URL_UNPOOLED` (Flyway uses this)
-
-`.env` is gitignored. Never commit the password.
-
-Schema lives in `src/main/resources/db/migration`. Flyway runs it on startup. Hibernate only **validates** the schema.
-
-Tests use H2 (`application-test.yml`) so `mvn test` does not need Neon.
+You cannot delete an author who still has books.
 
 ## Run
+
+Copy `.env.example` to `.env` if needed, then:
 
 ```bash
 .\mvnw.cmd spring-boot:run
 ```
 
-Open [http://localhost:8080/books](http://localhost:8080/books).
+Open [http://localhost:8080](http://localhost:8080).
 
-## Package map
+## Model
 
-```
-com.curso.library
-  LibraryApplication.java
-  book/
-    domain/          Book, BookRepository
-    application/     BookService, BookMapper
-    api/             BookApiController + dto/
-    web/             BookWebController
-  common/
-    error/           400 / 404 / 409 handlers
-    web/             HomeController
-  config/            .env loader, Neon URL parser, catalog seeder
-```
+| Table | Notes |
+|-------|--------|
+| `authors` | name, nationality, birth year |
+| `books` | title, isbn, year, genre, pages, `author_id` FK |
 
-## Pages and API
+Schema changes go in `src/main/resources/db/migration`. Flyway owns the database. Hibernate only validates.
 
-| Method | Path | Result |
-|--------|------|--------|
-| GET | `/books` | catalog page |
-| GET | `/api/books` | JSON list |
-| POST | `/api/books` | 201 / 400 / 409 |
+## Pages
 
-More examples: `requests.http`.
+- `/` home with counts and a shelf
+- `/books` search and author filter
+- `/authors` people and book counts
+- `/api/books` and `/api/authors` JSON
 
 ## Tests
 
 ```bash
 .\mvnw.cmd test
 ```
+
+Tests use H2. The running app uses Neon.
