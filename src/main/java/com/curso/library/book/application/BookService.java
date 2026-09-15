@@ -1,0 +1,75 @@
+package com.curso.library.book.application;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.curso.library.book.api.dto.BookRequest;
+import com.curso.library.book.api.dto.BookResponse;
+import com.curso.library.book.domain.Book;
+import com.curso.library.book.domain.BookRepository;
+import com.curso.library.common.error.DuplicateResourceException;
+import com.curso.library.common.error.ResourceNotFoundException;
+
+@Service
+@Transactional
+public class BookService {
+
+    private final BookRepository bookRepository;
+
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> findAll() {
+        return bookRepository.findAll()
+                .stream()
+                .map(BookMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public BookResponse findById(Long id) {
+        return BookMapper.toResponse(findBook(id));
+    }
+
+    public BookResponse create(BookRequest request) {
+        ensureIsbnIsUnique(request.isbn(), null);
+        Book saved = bookRepository.save(BookMapper.toEntity(request));
+        return BookMapper.toResponse(saved);
+    }
+
+    public BookResponse update(Long id, BookRequest request) {
+        Book book = findBook(id);
+        ensureIsbnIsUnique(request.isbn(), id);
+        book.update(
+                request.title().trim(),
+                request.author().trim(),
+                request.isbn().trim(),
+                request.publishedYear()
+        );
+        return BookMapper.toResponse(book);
+    }
+
+    public void delete(Long id) {
+        Book book = findBook(id);
+        bookRepository.delete(book);
+    }
+
+    private Book findBook(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
+    }
+
+    private void ensureIsbnIsUnique(String isbn, Long currentId) {
+        boolean taken = currentId == null
+                ? bookRepository.existsByIsbn(isbn)
+                : bookRepository.existsByIsbnAndIdNot(isbn, currentId);
+
+        if (taken) {
+            throw new DuplicateResourceException("isbn", isbn);
+        }
+    }
+}

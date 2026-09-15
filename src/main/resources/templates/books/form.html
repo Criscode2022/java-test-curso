@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head(${formTitle})}"></head>
+<body>
+    <header th:replace="~{layout :: header}"></header>
+
+    <main class="page page-narrow">
+        <p class="kicker">Card</p>
+        <h1 th:text="${formTitle}">Add a book</h1>
+
+        <form class="catalog-form" th:action="@{${formAction}}" th:object="${book}" method="post">
+            <label>
+                Title
+                <input type="text" th:field="*{title}" maxlength="200" autocomplete="off">
+                <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+            </label>
+
+            <label>
+                Author
+                <input type="text" th:field="*{author}" maxlength="150" autocomplete="off">
+                <span class="field-error" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></span>
+            </label>
+
+            <label>
+                ISBN
+                <input type="text" th:field="*{isbn}" maxlength="17" autocomplete="off">
+                <span class="field-error" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
+            </label>
+
+            <label>
+                Published year
+                <input type="number" th:field="*{publishedYear}" min="1400" max="2100">
+                <span class="field-error" th:if="${#fields.hasErrors('publishedYear')}" th:errors="*{publishedYear}"></span>
+            </label>
+
+            <div class="form-actions">
+                <button type="submit" class="button">Save book</button>
+                <a class="text-link" th:href="@{/books}">Cancel</a>
+            </div>
+        </form>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

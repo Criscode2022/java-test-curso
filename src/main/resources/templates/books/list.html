@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Books')}"></head>
+<body>
+    <header th:replace="~{layout :: header}"></header>
+
+    <main class="page">
+        <p class="kicker">Catalog</p>
+        <div class="page-heading">
+            <h1>Shelved titles</h1>
+            <a class="button" th:href="@{/books/new}">Add book</a>
+        </div>
+
+        <p class="flash" th:if="${message}" th:text="${message}">Saved.</p>
+
+        <section class="empty-state" th:if="${books.empty}">
+            <p>No books yet. Add the first title to the catalog.</p>
+            <a class="button" th:href="@{/books/new}">Add book</a>
+        </section>
+
+        <table class="catalog" th:unless="${books.empty}">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>ISBN</th>
+                    <th>Year</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="book : ${books}">
+                    <td>
+                        <a class="title-link" th:href="@{/books/{id}(id=${book.id})}" th:text="${book.title}">Title</a>
+                    </td>
+                    <td th:text="${book.author}">Author</td>
+                    <td><code th:text="${book.isbn}">isbn</code></td>
+                    <td th:text="${book.publishedYear}">2000</td>
+                    <td class="actions">
+                        <a th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
+                        <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post">
+                            <button type="submit" class="link-button">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

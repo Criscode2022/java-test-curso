@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Not found')}"></head>
+<body>
+    <header th:replace="~{layout :: header}"></header>
+
+    <main class="page page-narrow">
+        <p class="kicker">404</p>
+        <h1>This book is not on the shelf</h1>
+        <p class="lede" th:text="${message}">Book not found.</p>
+        <a class="button" th:href="@{/books}">Back to catalog</a>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

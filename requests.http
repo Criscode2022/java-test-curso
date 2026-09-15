@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:8080
+
+### List books
+GET {{baseUrl}}/api/books
+
+### Get one book
+GET {{baseUrl}}/api/books/1
+
+### Create a book
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{
+  "title": "The Pragmatic Programmer",
+  "author": "Andrew Hunt",
+  "isbn": "9780201616224",
+  "publishedYear": 1999
+}
+
+### Update a book
+PUT {{baseUrl}}/api/books/3
+Content-Type: application/json
+
+{
+  "title": "The Pragmatic Programmer",
+  "author": "Andrew Hunt and David Thomas",
+  "isbn": "9780201616224",
+  "publishedYear": 1999
+}
+
+### Delete a book
+DELETE {{baseUrl}}/api/books/3
+
+### Validation error (400)
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{
+  "title": "",
+  "author": "Unknown",
+  "isbn": "123",
+  "publishedYear": 1200
+}

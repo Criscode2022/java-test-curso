@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head(${book.title})}"></head>
+<body>
+    <header th:replace="~{layout :: header}"></header>
+
+    <main class="page page-narrow">
+        <p class="kicker">Record</p>
+        <p class="flash" th:if="${message}" th:text="${message}">Saved.</p>
+
+        <article class="card">
+            <h1 th:text="${book.title}">Title</h1>
+            <p class="byline" th:text="${book.author}">Author</p>
+
+            <dl class="meta">
+                <div>
+                    <dt>ISBN</dt>
+                    <dd><code th:text="${book.isbn}">isbn</code></dd>
+                </div>
+                <div>
+                    <dt>Published</dt>
+                    <dd th:text="${book.publishedYear}">2000</dd>
+                </div>
+            </dl>
+
+            <div class="form-actions">
+                <a class="button" th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
+                <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post">
+                    <button type="submit" class="link-button">Delete</button>
+                </form>
+                <a class="text-link" th:href="@{/books}">Back to catalog</a>
+            </div>
+        </article>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
