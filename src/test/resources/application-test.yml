@@ -11,3 +11,7 @@ spring:
 
   flyway:
     enabled: true
+
+library:
+  jwt:
+    secret: test-only-change-me-use-at-least-32-bytes!

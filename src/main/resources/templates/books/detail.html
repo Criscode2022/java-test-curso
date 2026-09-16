@@ -34,10 +34,16 @@
                         <dt>Pages</dt>
                         <dd th:text="${book.pages} ?: '—'">464</dd>
                     </div>
+                    <div>
+                        <dt>Owner</dt>
+                        <dd th:text="${book.ownerName}">Librarian</dd>
+                    </div>
                 </dl>
                 <div class="actions">
-                    <a class="btn" th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
-                    <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post" data-confirm="Delete this book?">
+                    <a class="btn" th:if="${currentUser != null and currentUser.id == book.ownerId}"
+                       th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
+                    <form th:if="${currentUser != null and currentUser.id == book.ownerId}"
+                          th:action="@{/books/{id}/delete(id=${book.id})}" method="post" data-confirm="Delete this book?">
                         <button type="submit" class="btn btn-ghost">Delete</button>
                     </form>
                     <a class="text-btn" th:href="@{/books}">Back to books</a>

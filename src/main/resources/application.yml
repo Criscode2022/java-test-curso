@@ -20,3 +20,9 @@ spring:
 
 server:
   port: 8080
+
+library:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-change-me-use-at-least-32-bytes!}
+    expiration: 12h
+    cookie-name: access_token

@@ -87,6 +87,25 @@ body {
     text-decoration: none;
 }
 
+.who {
+    color: var(--lamp);
+    font-size: 0.9rem;
+}
+
+.nav-form {
+    display: inline;
+    margin: 0;
+}
+
+.nav-form button {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--gold);
+    font: inherit;
+    cursor: pointer;
+}
+
 .wrap {
     flex: 1;
     padding: 0.4rem 0 3.5rem;

@@ -7,7 +7,7 @@
 
     <main class="wrap narrow">
         <h1 th:text="${formTitle}">Add a book</h1>
-        <p class="hint">Pick an author and a genre. Add them first if they are missing.</p>
+        <p class="hint">Pick an author and a genre. This book will belong to you.</p>
 
         <form class="form" th:action="@{${formAction}}" th:object="${book}" method="post">
             <label>

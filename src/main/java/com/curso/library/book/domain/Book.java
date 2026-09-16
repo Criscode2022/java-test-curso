@@ -2,6 +2,7 @@ package com.curso.library.book.domain;
 
 import com.curso.library.author.domain.Author;
 import com.curso.library.genre.domain.Genre;
+import com.curso.library.user.domain.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,16 +42,21 @@ public class Book {
     @JoinColumn(name = "genre_id", nullable = false, foreignKey = @ForeignKey(name = "fk_books_genre"))
     private Genre genre;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "fk_books_owner"))
+    private User owner;
+
     protected Book() {
     }
 
-    public Book(String title, String isbn, Integer publishedYear, Integer pages, Author author, Genre genre) {
+    public Book(String title, String isbn, Integer publishedYear, Integer pages, Author author, Genre genre, User owner) {
         this.title = title;
         this.isbn = isbn;
         this.publishedYear = publishedYear;
         this.pages = pages;
         this.author = author;
         this.genre = genre;
+        this.owner = owner;
     }
 
     public void update(String title, String isbn, Integer publishedYear, Integer pages, Author author, Genre genre) {
@@ -88,5 +94,9 @@ public class Book {
 
     public Genre getGenre() {
         return genre;
+    }
+
+    public User getOwner() {
+        return owner;
     }
 }

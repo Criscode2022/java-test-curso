@@ -1,6 +1,8 @@
 package com.curso.library.book.web;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -56,8 +58,17 @@ class BookWebTest {
     }
 
     @Test
+    void createFormRequiresLogin() throws Exception {
+        mockMvc.perform(get("/books/new"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
     void createFormRedisplaysValidationErrors() throws Exception {
         mockMvc.perform(post("/books")
+                        .with(user("librarian@stacks.local"))
+                        .with(csrf())
                         .param("title", "")
                         .param("isbn", "123")
                         .param("publishedYear", "1200"))
@@ -69,6 +80,8 @@ class BookWebTest {
     @Test
     void createBookRedirectsToCatalog() throws Exception {
         mockMvc.perform(post("/books")
+                        .with(user("librarian@stacks.local"))
+                        .with(csrf())
                         .param("title", "The Pragmatic Programmer")
                         .param("isbn", "9780201616224")
                         .param("publishedYear", "1999")

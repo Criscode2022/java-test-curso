@@ -9,7 +9,7 @@
     <main class="wrap">
         <div class="section-row">
             <h1>Genres</h1>
-            <a class="btn" th:href="@{/genres/new}">Add genre</a>
+            <a class="btn" th:if="${currentUser != null}" th:href="@{/genres/new}">Add genre</a>
         </div>
 
         <section class="empty" th:if="${genres.empty}">
@@ -29,7 +29,7 @@
                     </span>
                     <span class="badge" th:text="|${genre.bookCount} books|">2 books</span>
                 </a>
-                <div class="book-actions">
+                <div class="book-actions" th:if="${currentUser != null}">
                     <a th:href="@{/genres/{id}/edit(id=${genre.id})}">Edit</a>
                     <form th:action="@{/genres/{id}/delete(id=${genre.id})}" method="post"
                           data-confirm="Delete this genre? You can only do this if it has no books.">

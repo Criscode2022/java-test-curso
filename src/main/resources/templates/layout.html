@@ -21,14 +21,24 @@
             <a th:href="@{/books}">Books</a>
             <a th:href="@{/authors}">Authors</a>
             <a th:href="@{/genres}">Genres</a>
-            <a class="btn" th:href="@{/books/new}">Add book</a>
+            <th:block th:if="${currentUser == null}">
+                <a th:href="@{/login}">Sign in</a>
+                <a class="btn" th:href="@{/register}">Register</a>
+            </th:block>
+            <th:block th:unless="${currentUser == null}">
+                <span class="who" th:text="${currentUser.name}">Name</span>
+                <a class="btn" th:href="@{/books/new}">Add book</a>
+                <form class="nav-form" th:action="@{/logout}" method="post">
+                    <button type="submit" class="text-btn">Sign out</button>
+                </form>
+            </th:block>
         </nav>
     </header>
 
     <div class="notice" th:fragment="toast" th:if="${message}" data-toast th:text="${message}">Saved.</div>
 
     <footer class="site-foot" th:fragment="footer">
-        <p>Every book needs an author and a genre. API: <a th:href="@{/api/books}">/api/books</a></p>
+        <p>Every book has an owner. API: <a th:href="@{/api/books}">/api/books</a> · <a th:href="@{/api/auth/login}">/api/auth/login</a></p>
         <script th:src="@{/js/archive.js}"></script>
     </footer>
 </body>

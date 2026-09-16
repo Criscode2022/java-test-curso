@@ -12,9 +12,12 @@ import com.curso.library.book.api.dto.BookResponse;
 import com.curso.library.book.domain.Book;
 import com.curso.library.book.domain.BookRepository;
 import com.curso.library.common.error.DuplicateResourceException;
+import com.curso.library.common.error.ForbiddenException;
 import com.curso.library.common.error.ResourceNotFoundException;
 import com.curso.library.genre.domain.Genre;
 import com.curso.library.genre.domain.GenreRepository;
+import com.curso.library.user.domain.User;
+import com.curso.library.user.domain.UserRepository;
 
 @Service
 @Transactional
@@ -23,15 +26,18 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
+    private final UserRepository userRepository;
 
     public BookService(
             BookRepository bookRepository,
             AuthorRepository authorRepository,
-            GenreRepository genreRepository
+            GenreRepository genreRepository,
+            UserRepository userRepository
     ) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -61,20 +67,30 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    public List<BookResponse> findByOwner(Long ownerId) {
+        userRepository.findById(ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", ownerId));
+        return bookRepository.findByOwnerId(ownerId)
+                .stream()
+                .map(BookMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public BookResponse findById(Long id) {
         return BookMapper.toResponse(findBook(id));
     }
 
-    public BookResponse create(BookRequest request) {
+    public BookResponse create(BookRequest request, User owner) {
         ensureIsbnIsUnique(request.isbn(), null);
         Book saved = bookRepository.save(
-                BookMapper.toEntity(request, findAuthor(request.authorId()), findGenre(request.genreId()))
+                BookMapper.toEntity(request, findAuthor(request.authorId()), findGenre(request.genreId()), owner)
         );
         return BookMapper.toResponse(saved);
     }
 
-    public BookResponse update(Long id, BookRequest request) {
-        Book book = findBook(id);
+    public BookResponse update(Long id, BookRequest request, User actor) {
+        Book book = findOwnedBook(id, actor);
         ensureIsbnIsUnique(request.isbn(), id);
         book.update(
                 request.title().trim(),
@@ -87,8 +103,20 @@ public class BookService {
         return BookMapper.toResponse(book);
     }
 
-    public void delete(Long id) {
-        bookRepository.delete(findBook(id));
+    public void delete(Long id, User actor) {
+        bookRepository.delete(findOwnedBook(id, actor));
+    }
+
+    public void ensureOwner(Long id, User actor) {
+        findOwnedBook(id, actor);
+    }
+
+    private Book findOwnedBook(Long id, User actor) {
+        Book book = findBook(id);
+        if (!book.getOwner().getId().equals(actor.getId())) {
+            throw new ForbiddenException("Only the owner can change this book.");
+        }
+        return book;
     }
 
     private Book findBook(Long id) {

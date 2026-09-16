@@ -9,6 +9,8 @@ public record BookResponse(
         Long authorId,
         String authorName,
         Long genreId,
-        String genreName
+        String genreName,
+        Long ownerId,
+        String ownerName
 ) {
 }

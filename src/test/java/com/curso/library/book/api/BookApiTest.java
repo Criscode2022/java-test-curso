@@ -18,6 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jayway.jsonpath.JsonPath;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -29,6 +31,8 @@ class BookApiTest {
 
     @Test
     void crudFlowWorks() throws Exception {
+        String token = librarianToken();
+
         mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(5)));
@@ -53,12 +57,13 @@ class BookApiTest {
                 """;
 
         String location = mockMvc.perform(post("/api/books")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.title").value("The Pragmatic Programmer"))
-                .andExpect(jsonPath("$.authorName").exists())
+                .andExpect(jsonPath("$.ownerName").value("Librarian"))
                 .andReturn()
                 .getResponse()
                 .getHeader("Location");
@@ -79,16 +84,26 @@ class BookApiTest {
                 """;
 
         mockMvc.perform(put(location)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updated))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.genreName").value("Software"));
 
-        mockMvc.perform(delete(location))
+        mockMvc.perform(delete(location)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get(location))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createRejectsAnonymous() throws Exception {
+        mockMvc.perform(post("/api/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -102,6 +117,7 @@ class BookApiTest {
                 """;
 
         mockMvc.perform(post("/api/books")
+                        .header("Authorization", "Bearer " + librarianToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalid))
                 .andExpect(status().isBadRequest())
@@ -113,13 +129,60 @@ class BookApiTest {
 
     @Test
     void cannotDeleteAuthorWithBooks() throws Exception {
-        mockMvc.perform(delete("/api/authors/1"))
+        mockMvc.perform(delete("/api/authors/1")
+                        .header("Authorization", "Bearer " + librarianToken()))
                 .andExpect(status().isConflict());
     }
 
     @Test
     void cannotDeleteGenreWithBooks() throws Exception {
-        mockMvc.perform(delete("/api/genres/2"))
+        mockMvc.perform(delete("/api/genres/2")
+                        .header("Authorization", "Bearer " + librarianToken()))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void otherUserCannotDeleteOwnedBook() throws Exception {
+        String register = """
+                {
+                  "name": "Ada",
+                  "email": "ada@stacks.local",
+                  "password": "stacks1"
+                }
+                """;
+
+        String token = JsonPath.read(
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(register))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(),
+                "$.token"
+        );
+
+        mockMvc.perform(delete("/api/books/1")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
+    private String librarianToken() throws Exception {
+        String login = """
+                {
+                  "email": "librarian@stacks.local",
+                  "password": "stacks"
+                }
+                """;
+
+        String body = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(login))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        return JsonPath.read(body, "$.token");
     }
 }

@@ -12,7 +12,7 @@
                 <h1 th:text="${author.name}">Name</h1>
                 <p class="hint" th:text="${author.nationality} ?: 'Nationality unknown'">United States</p>
             </div>
-            <div class="actions">
+            <div class="actions" th:if="${currentUser != null}">
                 <a class="btn" th:href="@{/authors/{id}/edit(id=${author.id})}">Edit</a>
                 <a class="btn btn-ghost" th:href="@{/books/new}">Add book</a>
             </div>

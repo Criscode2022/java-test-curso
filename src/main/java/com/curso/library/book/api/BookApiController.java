@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.curso.library.auth.application.CurrentUserService;
 import com.curso.library.book.api.dto.BookRequest;
 import com.curso.library.book.api.dto.BookResponse;
 import com.curso.library.book.application.BookService;
@@ -28,21 +29,27 @@ import jakarta.validation.Valid;
 public class BookApiController {
 
     private final BookService bookService;
+    private final CurrentUserService currentUserService;
 
-    public BookApiController(BookService bookService) {
+    public BookApiController(BookService bookService, CurrentUserService currentUserService) {
         this.bookService = bookService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping
     public List<BookResponse> findAll(
             @RequestParam(required = false) Long authorId,
-            @RequestParam(required = false) Long genreId
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Long ownerId
     ) {
         if (authorId != null) {
             return bookService.findByAuthor(authorId);
         }
         if (genreId != null) {
             return bookService.findByGenre(genreId);
+        }
+        if (ownerId != null) {
+            return bookService.findByOwner(ownerId);
         }
         return bookService.findAll();
     }
@@ -54,7 +61,7 @@ public class BookApiController {
 
     @PostMapping
     public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request) {
-        BookResponse created = bookService.create(request);
+        BookResponse created = bookService.create(request, currentUserService.requireUser());
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.id())
@@ -64,12 +71,12 @@ public class BookApiController {
 
     @PutMapping("/{id}")
     public BookResponse update(@PathVariable Long id, @Valid @RequestBody BookRequest request) {
-        return bookService.update(id, request);
+        return bookService.update(id, request, currentUserService.requireUser());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        bookService.delete(id);
+        bookService.delete(id, currentUserService.requireUser());
     }
 }

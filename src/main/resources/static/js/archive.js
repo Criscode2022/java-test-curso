@@ -14,7 +14,8 @@
             card.dataset.title,
             card.dataset.author,
             card.dataset.genre,
-            card.dataset.isbn
+            card.dataset.isbn,
+            card.dataset.owner
         ].join(" ").toLowerCase();
         const textOk = query === "" || haystack.includes(query);
         const authorOk = authorFilter === "all" || card.dataset.author === authorFilter;

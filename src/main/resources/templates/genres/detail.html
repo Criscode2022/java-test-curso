@@ -12,7 +12,7 @@
                 <h1 th:text="${genre.name}">Name</h1>
                 <p class="hint" th:text="${genre.description} ?: 'No description'">Programming</p>
             </div>
-            <div class="actions">
+            <div class="actions" th:if="${currentUser != null}">
                 <a class="btn" th:href="@{/genres/{id}/edit(id=${genre.id})}">Edit</a>
                 <a class="btn btn-ghost" th:href="@{/books/new}">Add book</a>
             </div>

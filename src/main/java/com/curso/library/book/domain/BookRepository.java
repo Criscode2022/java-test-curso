@@ -17,15 +17,20 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     long countByGenreId(Long genreId);
 
-    @Query("select b from Book b join fetch b.author join fetch b.genre order by b.title")
+    long countByOwnerId(Long ownerId);
+
+    @Query("select b from Book b join fetch b.author join fetch b.genre join fetch b.owner order by b.title")
     List<Book> findAllWithRelations();
 
-    @Query("select b from Book b join fetch b.author join fetch b.genre where b.id = :id")
+    @Query("select b from Book b join fetch b.author join fetch b.genre join fetch b.owner where b.id = :id")
     Optional<Book> findByIdWithRelations(@Param("id") Long id);
 
-    @Query("select b from Book b join fetch b.author join fetch b.genre where b.author.id = :authorId order by b.title")
+    @Query("select b from Book b join fetch b.author join fetch b.genre join fetch b.owner where b.author.id = :authorId order by b.title")
     List<Book> findByAuthorId(@Param("authorId") Long authorId);
 
-    @Query("select b from Book b join fetch b.author join fetch b.genre where b.genre.id = :genreId order by b.title")
+    @Query("select b from Book b join fetch b.author join fetch b.genre join fetch b.owner where b.genre.id = :genreId order by b.title")
     List<Book> findByGenreId(@Param("genreId") Long genreId);
+
+    @Query("select b from Book b join fetch b.author join fetch b.genre join fetch b.owner where b.owner.id = :ownerId order by b.title")
+    List<Book> findByOwnerId(@Param("ownerId") Long ownerId);
 }

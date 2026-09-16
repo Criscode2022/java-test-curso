@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.curso.library.auth.application.CurrentUserService;
 import com.curso.library.author.application.AuthorService;
 import com.curso.library.book.api.dto.BookRequest;
 import com.curso.library.book.application.BookService;
 import com.curso.library.common.error.DuplicateResourceException;
 import com.curso.library.common.error.ResourceNotFoundException;
 import com.curso.library.genre.application.GenreService;
+import com.curso.library.user.domain.User;
 
 import jakarta.validation.Valid;
 
@@ -26,11 +28,18 @@ public class BookWebController {
     private final BookService bookService;
     private final AuthorService authorService;
     private final GenreService genreService;
+    private final CurrentUserService currentUserService;
 
-    public BookWebController(BookService bookService, AuthorService authorService, GenreService genreService) {
+    public BookWebController(
+            BookService bookService,
+            AuthorService authorService,
+            GenreService genreService,
+            CurrentUserService currentUserService
+    ) {
         this.bookService = bookService;
         this.authorService = authorService;
         this.genreService = genreService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping
@@ -62,7 +71,7 @@ public class BookWebController {
         }
 
         try {
-            bookService.create(book);
+            bookService.create(book, currentUser());
         } catch (DuplicateResourceException exception) {
             bindingResult.rejectValue("isbn", "duplicate", exception.getMessage());
             return showForm(model, "Add a book", "/books");
@@ -83,6 +92,7 @@ public class BookWebController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
+        bookService.ensureOwner(id, currentUser());
         model.addAttribute("book", BookRequest.from(bookService.findById(id)));
         model.addAttribute("formTitle", "Edit book");
         model.addAttribute("formAction", "/books/" + id);
@@ -103,7 +113,7 @@ public class BookWebController {
         }
 
         try {
-            bookService.update(id, book);
+            bookService.update(id, book, currentUser());
         } catch (DuplicateResourceException exception) {
             bindingResult.rejectValue("isbn", "duplicate", exception.getMessage());
             return showForm(model, "Edit book", "/books/" + id);
@@ -118,9 +128,13 @@ public class BookWebController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        bookService.delete(id);
+        bookService.delete(id, currentUser());
         redirectAttributes.addFlashAttribute("message", "Book deleted.");
         return "redirect:/books";
+    }
+
+    private User currentUser() {
+        return currentUserService.requireUser();
     }
 
     private String showForm(Model model, String title, String action) {

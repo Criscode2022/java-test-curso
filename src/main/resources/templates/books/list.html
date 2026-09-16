@@ -9,7 +9,7 @@
     <main class="wrap">
         <div class="section-row">
             <h1>Books</h1>
-            <a class="btn" th:href="@{/books/new}">Add book</a>
+            <a class="btn" th:if="${currentUser != null}" th:href="@{/books/new}">Add book</a>
         </div>
 
         <div class="filters" th:unless="${books.empty}">
@@ -47,7 +47,7 @@
             <div class="shelf-plank" aria-hidden="true"></div>
             <div class="cover-row" data-card-grid>
                 <article class="book" data-book th:each="book, iter : ${books}"
-                         th:attr="data-title=${book.title}, data-author=${book.authorName}, data-genre=${book.genreName}, data-isbn=${book.isbn}, data-cloth=${iter.index % 6}">
+                         th:attr="data-title=${book.title}, data-author=${book.authorName}, data-genre=${book.genreName}, data-isbn=${book.isbn}, data-owner=${book.ownerName}, data-cloth=${iter.index % 6}">
                     <a class="cover" th:href="@{/books/{id}(id=${book.id})}">
                         <span class="spine"></span>
                         <span class="band" th:text="${book.genreName}">Software</span>
@@ -55,7 +55,7 @@
                         <p th:text="${book.authorName}">Author</p>
                         <small th:text="${book.publishedYear}">2008</small>
                     </a>
-                    <div class="book-actions">
+                    <div class="book-actions" th:if="${currentUser != null and currentUser.id == book.ownerId}">
                         <a th:href="@{/books/{id}/edit(id=${book.id})}">Edit</a>
                         <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post" data-confirm="Delete this book?">
                             <button type="submit">Delete</button>
